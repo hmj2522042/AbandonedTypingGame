@@ -25,4 +25,3 @@ public:
 		return m_deltaTime;
 	}
 };
-// d

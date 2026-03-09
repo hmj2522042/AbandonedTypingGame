@@ -95,6 +95,7 @@
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)Dxlib3.25</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -129,6 +130,7 @@
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)Dxlib3.25</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -139,17 +141,41 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Actor2D.cpp" />
+    <ClCompile Include="AutoComputer.cpp" />
+    <ClCompile Include="Computer.cpp" />
     <ClCompile Include="GameMain.cpp" />
     <ClCompile Include="Keyboard.cpp" />
+    <ClCompile Include="ManualComputer.cpp" />
+    <ClCompile Include="Mouse.cpp" />
+    <ClCompile Include="SceneBase.cpp" />
+    <ClCompile Include="SceneGame.cpp" />
+    <ClCompile Include="SceneManager.cpp" />
+    <ClCompile Include="SceneTitle.cpp" />
+    <ClCompile Include="SceneSetting.cpp" />
     <ClCompile Include="Time.cpp" />
     <ClCompile Include="Timer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Actor2D.h" />
+    <ClInclude Include="AutoComputer.h" />
+    <ClInclude Include="Computer.h" />
     <ClInclude Include="GameMain.h" />
     <ClInclude Include="Keyboard.h" />
+    <ClInclude Include="ManualComputer.h" />
     <ClInclude Include="Math.hpp" />
+    <ClInclude Include="Mouse.h" />
+    <ClInclude Include="RomajiTable.h" />
+    <ClInclude Include="SceneBase.h" />
+    <ClInclude Include="SceneGame.h" />
+    <ClInclude Include="SceneManager.h" />
+    <ClInclude Include="SceneTitle.h" />
+    <ClInclude Include="Screen.h" />
+    <ClInclude Include="SceneSetting.h" />
+    <ClInclude Include="Task.h" />
     <ClInclude Include="Time.hpp" />
     <ClInclude Include="Timer.h" />
+    <ClInclude Include="Transform2D.h" />
     <ClInclude Include="Vector2.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
