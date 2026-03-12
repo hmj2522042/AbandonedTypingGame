@@ -9,6 +9,8 @@ class Computer : public Actor2D
 protected:
 	Task m_task; // 後々タスク構造体のメンバーにする
 	size_t m_taskTextIndex; // 現在のタスクテキストの何バイト目を処理しているか
+	size_t m_romajiTextIndex; // 現在のタスクテキストの何バイト目を処理しているか
+	//size_t m_targetIndex;	// 現在ターゲットにしている文字の何文字目か tya →　tyまで打ってるなら targetIndex = 2;
 	size_t m_target_byte; // i番目からchar_lenバイト数分を読んでchに代入
 
 	std::string m_input_buffer;		// １文字区切りで見たときの、これまでの入力

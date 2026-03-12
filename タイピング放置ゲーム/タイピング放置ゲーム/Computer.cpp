@@ -7,13 +7,15 @@ Computer::Computer(const char* textureName, const Vector2& position) :
 	m_preInput(0),
 	m_target_byte(0),
 	m_task(),
-	m_taskTextIndex(0)
+	m_taskTextIndex(0),
+	//m_targetIndex(0),
+	m_romajiTextIndex(0)
 {
 }
 
 void Computer::TypingCheck()
 {
-	unsigned char c = static_cast<unsigned char>(m_task.GetJapaneseText()[m_taskTextIndex]);
+	unsigned char c = static_cast<unsigned char>(m_task.GetYomiganaText()[m_taskTextIndex]);
 
 	// target(例：あ、じゃ、G、!)の選定
 	m_target_byte = 1;	// デフォルトでバイト数 = 1
@@ -24,26 +26,26 @@ void Computer::TypingCheck()
 		m_target_byte = 2;
 
 		// 後ろに二文字以上あるなら、二文字目(拗音、促音、發音)の判定
-		if (m_taskTextIndex + m_target_byte + 2 < m_task.GetJapaneseText().size())
+		if (m_taskTextIndex + m_target_byte + 2 <= m_task.GetYomiganaText().size())
 		{
 			bool secondCharSearch = false;
 
 			// 2文字目が拗音「ゃゅょ」
-			if (m_task.GetJapaneseText().substr(m_taskTextIndex + m_target_byte, 2) == "ゃ" ||
-				m_task.GetJapaneseText().substr(m_taskTextIndex + m_target_byte, 2) == "ゅ" ||
-				m_task.GetJapaneseText().substr(m_taskTextIndex + m_target_byte, 2) == "ょ")
+			if (m_task.GetYomiganaText().substr(m_taskTextIndex + m_target_byte, 2) == "ゃ" ||
+				m_task.GetYomiganaText().substr(m_taskTextIndex + m_target_byte, 2) == "ゅ" ||
+				m_task.GetYomiganaText().substr(m_taskTextIndex + m_target_byte, 2) == "ょ")
 			{
 				secondCharSearch = true;
 			}
 
 			// 一文字目が促音「っ」
-			if (m_task.GetJapaneseText().substr(m_taskTextIndex, 2) == "っ")
+			if (m_task.GetYomiganaText().substr(m_taskTextIndex, 2) == "っ")
 			{
 				secondCharSearch = true;
 			}
 
 			// 一文字目が發音「ん」
-			if (m_task.GetJapaneseText().substr(m_taskTextIndex, 2) == "ん")
+			if (m_task.GetYomiganaText().substr(m_taskTextIndex, 2) == "ん")
 			{
 				secondCharSearch = true;
 			}
@@ -55,7 +57,6 @@ void Computer::TypingCheck()
 		}
 	}
 
-	//m_preInput = 'k';
 	// タイプした後のチェック
 	RomajiTable::Status checkStatus = RomajiChecker();
 
@@ -63,6 +64,7 @@ void Computer::TypingCheck()
 	if (checkStatus == RomajiTable::Status::CorrectKey)
 	{
 		m_input_buffer += m_preInput;
+		m_romajiTextIndex++;
 		m_preInput = NULL;
 	}
 	// 入力したキーが正しいかつtargetをコンプリートした
@@ -70,6 +72,7 @@ void Computer::TypingCheck()
 	{
 		m_input_buffer.clear();
 		m_taskTextIndex += m_target_byte;	// 総バイト数を加算し、次のtargetを更新
+		m_romajiTextIndex++;
 		m_preInput = NULL;
 	}
 	// target一文字目が"ん"だった時に、"n"一つだけで次の文字に移行成功した
@@ -78,6 +81,7 @@ void Computer::TypingCheck()
 		m_input_buffer.clear();
 		m_input_buffer += m_preInput; // 今回の入力"例：j"を次の文字のinput_bufferに追加
 		m_taskTextIndex += m_target_byte;
+		m_romajiTextIndex++;
 		m_preInput = NULL;
 	}
 	else if (checkStatus == RomajiTable::Status::Miss)
@@ -86,9 +90,9 @@ void Computer::TypingCheck()
 		m_preInput = NULL;
 	}
 
-	if (m_taskTextIndex > m_task.GetJapaneseText().size())
+	if (m_taskTextIndex > m_task.GetYomiganaText().size())
 	{
-		m_taskTextIndex = m_task.GetJapaneseText().size();
+		m_taskTextIndex = m_task.GetYomiganaText().size();
 	}
 }
 
@@ -96,23 +100,21 @@ RomajiTable::Status Computer::RomajiChecker()
 {
 	if (m_preInput == '\0') return RomajiTable::Status::Miss;	// 入力がないなら終了
 
-	//std::map<std::string, std::vector<std::string>>::iterator it; // itにはmapのイテレーター(pair)が入る map<Key,Value>のうち、it.first = Key"じゃ" , it.second = Valueをとる;
 	std::string target_first = "";
 	std::string target_second = "";
 	const auto& map = RomajiTable::GetInstance()->GetRomajiMap();
-	auto it = map.find(m_task.GetJapaneseText().substr(m_taskTextIndex, m_target_byte));
+	auto it = map.find(m_task.GetYomiganaText().substr(m_taskTextIndex, m_target_byte));
 
 	std::string input_buffer = m_input_buffer;
 	input_buffer += m_preInput;	// バッファーに直近のキー入力を追加
 
 	////////////////////////// あるふぁべっと　英語 ///////////////////////////////
 
-
 	if (m_target_byte == 1)
 	{
 		// romajiMapに存在するパターンなら
 		// target全て読み込んで（拗音ありなら4バイト分）
-		it = map.find(m_task.GetJapaneseText().substr(m_taskTextIndex, m_target_byte));
+		it = map.find(m_task.GetYomiganaText().substr(m_taskTextIndex, m_target_byte));
 
 		if (it != map.end())
 		{
@@ -134,11 +136,11 @@ RomajiTable::Status Computer::RomajiChecker()
 
 	if (m_target_byte >= 2)
 	{
-		target_first = m_task.GetJapaneseText().substr(m_taskTextIndex, 2);	// 一文字目を得る、先頭から2バイト読み込む
+		target_first = m_task.GetYomiganaText().substr(m_taskTextIndex, 2);	// 一文字目を得る、先頭から2バイト読み込む
 	}
 	if (m_target_byte >= 4)
 	{
-		target_second = m_task.GetJapaneseText().substr(m_taskTextIndex + 2, 2);	// 二文字目を得る、3バイト目から2バイト読み込む
+		target_second = m_task.GetYomiganaText().substr(m_taskTextIndex + 2, 2);	// 二文字目を得る、3バイト目から2バイト読み込む
 	}
 
 	// 發音　促音はひらがな二文字読み込めるなら判定を行う
@@ -197,7 +199,7 @@ RomajiTable::Status Computer::RomajiChecker()
 
 			// 二文字目がignoreに含まれていたら nOnly_flag = false
 			static const std::vector<std::string> ignore_sokuon = {
-			"あ", "い", "う", "え", "お", "ん"
+			"あ", "い", "う", "え", "お", "ん", "っ"
 			};
 
 			// 二文字目がignoreに含まれるなら false つまり"ltsu,ltu"入力しないと"っ"にならない
@@ -209,14 +211,39 @@ RomajiTable::Status Computer::RomajiChecker()
 				}
 			}
 
-			// "tt"まで入力されていたら
 			if (sokuon_flag)
 			{
-				// 3文字取得可能なら 拗音("ゃ,ゅ,ょ") までしらべる
-				if (m_task.GetJapaneseText().size() >= m_target_byte + 2)
-				{
-					std::string target_third = m_task.GetJapaneseText().substr(m_taskTextIndex + 4, 2);	// 二文字目を得る、3バイト目から2バイト読み込む
+				// 2文字取得可能
+				it = map.find(target_second);
 
+				// romajiMapに存在するパターンなら
+				if (it != map.end())
+				{
+					// 二文字目のローマ字の一文字目"例：j"の判定
+					for (std::string pattern : it->second)
+					{
+						std::string sokuon = pattern[0] + pattern;	// 例：ja → jja 
+
+						// 一致したので "っ"は"例：jja"で出力完了し、次の文字たちへ移行する
+						if (sokuon == input_buffer)
+						{
+							return RomajiTable::Status::Complete;
+						}
+						// まだペアが完成はしていないが、直近タイプした一文字（キー）は正しい かつ
+						// m_input_bufferと一致しているか
+						else if (sokuon[input_buffer.length() - 1] == m_preInput &&
+							sokuon.rfind(input_buffer, 0) == 0)
+						{
+							return RomajiTable::Status::CorrectKey;
+						}
+					}
+				}
+				
+				// 3文字取得可能なら 拗音("ゃ,ゅ,ょ") までしらべる
+				if (m_task.GetYomiganaText().size() >= m_taskTextIndex + m_target_byte + 2)
+				{
+					std::string target_third = m_task.GetYomiganaText().substr(m_taskTextIndex + 4, 2);	// 二文字目を得る、3バイト目から2バイト読み込む
+					
 					// 3文字目が拗音「ゃゅょ」
 					if (target_third == "ゃ" || target_third == "ゅ" || target_third == "ょ")
 					{
@@ -243,33 +270,6 @@ RomajiTable::Status Computer::RomajiChecker()
 								{
 									return RomajiTable::Status::CorrectKey;
 								}
-							}
-						}
-					}
-				}
-				else
-				{
-					it = map.find(target_second);
-
-					// romajiMapに存在するパターンなら
-					if (it != map.end())
-					{
-						// 二文字目のローマ字の一文字目"例：j"の判定
-						for (std::string pattern : it->second)
-						{
-							std::string sokuon = pattern[0] + pattern;	// 例：ja → jja 
-
-							// 一致したので "っ"は"例：jja"で出力完了し、次の文字たちへ移行する
-							if (sokuon == input_buffer)
-							{
-								return RomajiTable::Status::Complete;
-							}
-							// まだペアが完成はしていないが、直近タイプした一文字（キー）は正しい かつ
-							// m_input_bufferと一致しているか
-							else if (sokuon[input_buffer.length() - 1] == m_preInput &&
-								sokuon.rfind(input_buffer, 0) == 0)
-							{
-								return RomajiTable::Status::CorrectKey;
 							}
 						}
 					}
@@ -338,10 +338,71 @@ RomajiTable::Status Computer::RomajiChecker()
 void Computer::Draw()
 {
 	Actor2D::Draw();
+
+	SetFontSize(Task::MainFontSize);	// フォントサイズ変更
+	int mainWidth = GetDrawStringWidth(m_task.GetMainText().c_str(), -1);	// 文字列全体の長さを取得
+	SetFontSize(Task::SubFontSize);	// フォントサイズを戻す
+	int subWidth = GetDrawStringWidth(m_task.GetRomajiText().c_str(), -1);	// 文字列全体の長さを取得
+	SetFontSize(16);	// フォントサイズを戻す
+
+	m_task.SetMainXPos((Screen::Width - mainWidth) / 2);			// 中央寄せ基準の文字列の1文字目のx座標（今回はScreen::WIdthなので画面の中心）
+	m_task.SetRomajiXPos((Screen::Width - subWidth) / 2);			// 中央寄せ基準の文字列の1文字目のx座標（今回はScreen::WIdthなので画面の中心）
+
+	// メインテキスト一文字ずつ表示
+	for (size_t i = 0; i < m_task.GetMainText().size(); )
+	{
+		unsigned char c = static_cast<unsigned char>(m_task.GetMainText()[i]);
+
+		// target(例：あ、じゃ、G、!)の選定
+		size_t target_byte = 1;	// デフォルトでバイト数 = 1
+
+		// SHIFT-JISの先頭バイトで2バイト文字を判定
+		if ((c >= 0x81 && c <= 0x9F) || (c >= 0xE0 && c <= 0xFC))
+		{
+			target_byte = 2;
+		}
+
+		std::string target = m_task.GetMainText().substr(i, target_byte);	// i番目からchar_lenバイト数分を読んでchに代入
+
+		SetFontSize(Task::MainFontSize);	// フォントサイズ変更
+		if (i < m_taskTextIndex)
+		{
+			DrawFormatString(m_task.GetMainPosition().x, m_task.GetMainPosition().y, GetColor(0, 0, 0), target.c_str()); // 引数の色で文字列を表示
+		}
+		else
+		{
+			DrawFormatString(m_task.GetMainPosition().x, m_task.GetMainPosition().y, GetColor(255, 255, 255), target.c_str()); // 引数の色で文字列を表示
+		}
+
+		m_task.SetMainXPos(m_task.GetMainPosition().x + GetDrawStringWidth(target.c_str(), -1));	// 今回入力した1文字の長さ分、次のX座標をずらす
+		i += target_byte;
+		SetFontSize(16);	// フォントサイズを戻す
+	}
+
+	// ローマ字表示
+	for (size_t i = 0; i < m_task.GetRomajiText().size(); i++)
+	{
+		std::string target = m_task.GetRomajiText().substr(i, 1);	// i番目からchar_lenバイト数分を読んでchに代入
+
+		SetFontSize(Task::SubFontSize);	// フォントサイズ変更
+		if (i < m_romajiTextIndex)
+		{
+			DrawFormatString(m_task.GetRomajiPosition().x, m_task.GetRomajiPosition().y, GetColor(0, 0, 0), target.c_str()); // 引数の色で文字列を表示
+		}
+		else
+		{
+			DrawFormatString(m_task.GetRomajiPosition().x, m_task.GetRomajiPosition().y, GetColor(255, 255, 255), target.c_str()); // 引数の色で文字列を表示
+		}
+
+		m_task.SetRomajiXPos(m_task.GetRomajiPosition().x + GetDrawStringWidth(target.c_str(), -1));	// 今回入力した1文字の長さ分、次のX座標をずらす
+		SetFontSize(16);
+	}
 }
 
 void Computer::Update()
 {
 	Actor2D::Update();
 	TypingCheck();	// 入力キーの正誤判定
+	m_task.UpdateText(m_input_buffer ,m_taskTextIndex, m_romajiTextIndex);
+	//m_task.UpdateText(m_input_buffer + m_preInput, m_taskTextIndex, m_targetIndex);
 }

@@ -72,9 +72,9 @@ public:
 
 		// ‚½sEX‰¹
 		m_romajiMap["‚½"] = { "ta" };
-		m_romajiMap["‚¿"] = { "chi" ,"ti" };
-		m_romajiMap["‚Â"] = { "tsu" ,"tu" };
-		m_romajiMap["‚Á"] = { "ltsu" ,"ltu" ,"xtsu" ,"xtu" };
+		m_romajiMap["‚¿"] = {"ti", "chi" };
+		m_romajiMap["‚Â"] = {"tu", "tsu" };
+		m_romajiMap["‚Á"] = { "ltu" ,"xtu","xtsu" ,"ltsu" };
 		m_romajiMap["‚Ä"] = { "te" };
 		m_romajiMap["‚Æ"] = { "to" };
 		m_romajiMap["‚¿‚á"] = { "cha", "tya" };
