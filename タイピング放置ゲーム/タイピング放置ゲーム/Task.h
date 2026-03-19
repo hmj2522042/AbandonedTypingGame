@@ -2,19 +2,12 @@
 #include <string>
 #include "Screen.h"
 #include "Vector2.h"
-
-// TODO 
-////				// 完全一致
-//				if (index == taskTextIndex && pattern == input_buffer)
-//				{
-//					return pattern;
-//				}
-//ここでinput_bufferがnullの理由は、入力が完了したタイミングで既にinput_buffer.clear()されてるから。
-//この影響で"ltu" が、　最終表示で"lts"になったりする
+#include "TaskTable.h"
 
 class Task
 {
 private:
+	const TaskTable m_taskTable;
 	std::string m_mainText;	// 漢字こみ
 	std::string m_romajiText;	// ローマ字
 	std::string m_yomiganaText;	// ひらがなのみ(内部処理に使うだけ)
@@ -25,22 +18,43 @@ private:
 	int m_romajiWidth;	// 文字列全体の長さを取得
 
 public:
-	static constexpr int MainFontSize = 40;
+	static constexpr int MainFontSize = 30;
+	static constexpr int YomiganaFontSize = 21;
 	static constexpr int SubFontSize = 16;
 	static constexpr Vector2 Margin = Vector2(0, MainFontSize);
 
 	Task() :
 		m_romajiText(""),
+		m_mainWidth(0),
+		m_romajiWidth(0),
 		m_mainPos(Vector2(0, Screen::Height / 2 - GetFontSize() / 2)),
 		m_romajiPos(Vector2(0, Screen::Height / 2 - GetFontSize() / 2) + Margin)
 	{
-		SetNewText();
 	}
 	
-	void SetNewText()
+	void SetNewText(int textLevel)
 	{
-		SetMainText("ただの屍のようだ");
-		SetYomiganaText("ただのしかばねのようだ");
+		int rand = GetRand(TaskTable::MaxTaskPair - 1);
+
+		switch (textLevel)
+		{
+		case 1:
+			SetMainText(m_taskTable.taskPair2to3[rand].m_main);
+			SetYomiganaText(m_taskTable.taskPair2to3[rand].m_yomigana);
+			break;
+		case 2:
+			SetMainText(m_taskTable.taskPair4to7[rand].m_main);
+			SetYomiganaText(m_taskTable.taskPair4to7[rand].m_yomigana);
+			break;
+		case 3:
+			SetMainText(m_taskTable.taskPair8to13[rand].m_main);
+			SetYomiganaText(m_taskTable.taskPair8to13[rand].m_yomigana);
+			break;
+		case 4:
+			SetMainText(m_taskTable.taskPair14to20[rand].m_main);
+			SetYomiganaText(m_taskTable.taskPair14to20[rand].m_yomigana);
+			break;
+		}
 
 		// 文字列の長さ
 		SetFontSize(Task::MainFontSize);	// フォントサイズ変更
@@ -76,6 +90,8 @@ public:
 					// 2文字目が拗音「ゃゅょ」
 					if (m_yomiganaText.substr(i + target_byte, 2) == "ゃ" ||
 						m_yomiganaText.substr(i + target_byte, 2) == "ゅ" ||
+						m_yomiganaText.substr(i + target_byte, 2) == "ぃ" ||
+						m_yomiganaText.substr(i + target_byte, 2) == "ぇ" ||
 						m_yomiganaText.substr(i + target_byte, 2) == "ょ")
 					{
 						secondCharSearch = true;
@@ -232,38 +248,13 @@ public:
 				// "tt"まで入力されていたら
 				if (sokuon_flag)
 				{
-					// 拗音なしで二文字までの促音"っ"なら
-					it = map.find(target_second);
-
-					// romajiMapに存在するパターンなら
-					if (it != map.end())
-					{
-						// 二文字目のローマ字の一文字目"例：j"の判定
-						for (std::string pattern : it->second)
-						{
-							std::string sokuon = pattern[0] + pattern;	// 例：ji → jji 
-
-							// もしタイプ中の文字なら
-							// 一致したので "っじゃ"は"例：jja"で出力
-							if (index == taskTextIndex && sokuon.rfind(input_buffer, 0) == 0)
-							{
-								return sokuon;
-							}
-							// タイプ中の文字じゃないならマップで最初にとれたValueを出力
-							if (index != taskTextIndex)
-							{
-								return sokuon;
-							}
-						}
-					}
-
 					// 3文字取得可能なら 拗音("ゃ,ゅ,ょ") までしらべる
 					if (m_yomiganaText.size() >= taskTextIndex + target_byte + 2)
 					{
 						std::string target_third = m_yomiganaText.substr(index + 4, 2);	// 二文字目を得る、3バイト目から2バイト読み込む
 
 						// 3文字目が拗音「ゃゅょ」
-						if (target_third == "ゃ" || target_third == "ゅ" || target_third == "ょ")
+						if (target_third == "ゃ" || target_third == "ゅ" || target_third == "ょ" || target_third == "ぃ" || target_third == "ぇ")
 						{
 							target_byte += 2;
 							it = map.find(target_second + target_third);
@@ -288,6 +279,31 @@ public:
 										return sokuon;
 									}
 								}
+							}
+						}
+					}
+
+					// 拗音なしで二文字までの促音"っ"なら
+					it = map.find(target_second);
+
+					// romajiMapに存在するパターンなら
+					if (it != map.end())
+					{
+						// 二文字目のローマ字の一文字目"例：j"の判定
+						for (std::string pattern : it->second)
+						{
+							std::string sokuon = pattern[0] + pattern;	// 例：ji → jji 
+
+							// もしタイプ中の文字なら
+							// 一致したので "っじゃ"は"例：jja"で出力
+							if (index == taskTextIndex && sokuon.rfind(input_buffer, 0) == 0)
+							{
+								return sokuon;
+							}
+							// タイプ中の文字じゃないならマップで最初にとれたValueを出力
+							if (index != taskTextIndex)
+							{
+								return sokuon;
 							}
 						}
 					}
@@ -365,10 +381,14 @@ public:
 	int GetMainTextWidth() { return m_mainWidth; }
 	int GetRomajiTextWidth() { return m_romajiWidth; }
 
+	void AddChar(char c, size_t insertIndex) { m_romajiText.insert(insertIndex, 1, c); }
+
 	void SetMainText(std::string str) { m_mainText = str; }
 	void SetYomiganaText(std::string str) { m_yomiganaText = str; }
 	void SetRomajiText(std::string str) { m_romajiText = str; }
 
 	void SetMainXPos(float pos) { m_mainPos.x = pos; }
 	void SetRomajiXPos(float pos) { m_romajiPos.x = pos; }
+	void SetMainYPos(float pos) { m_mainPos.y = pos; }
+	void SetRomajiYPos(float pos) { m_romajiPos.y = pos; }
 };

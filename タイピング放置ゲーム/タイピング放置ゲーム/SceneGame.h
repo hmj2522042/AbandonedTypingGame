@@ -1,6 +1,7 @@
 #pragma once
 #include "SceneBase.h"
 #include "RomajiTable.h"
+#include "EnhanceButton.h"
 
 class ManualComputer;
 class AutoComputer;
@@ -12,10 +13,15 @@ private:
 	SceneSetting* m_sceneSetting;
 	ManualComputer* m_manualComputer;
 	AutoComputer* m_autoComputer;
+	EnhanceButton* m_enhanceButton[static_cast<int>(Status::EnhanceType::Length)];
 
 	RomajiTable m_romajiTable;
+
+	int m_bgm;
+	int m_piconSE;
+
 public:
-	SceneGame() {}
+	SceneGame();
 
 	virtual void Initialize() override;
 	virtual void Finalize() override;

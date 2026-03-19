@@ -43,5 +43,5 @@ void SceneTitle::Draw()
 	// SceneBaseの描画
 	SceneBase::Draw();
 
-	DrawFormatString(0, 0, 0xffffff, "SceneTitle"); // 引数の色で文字列を表示
+	DrawFormatString(0, 0, 0xffffff, "SceneTitle Press G Key"); // 引数の色で文字列を表示
 }

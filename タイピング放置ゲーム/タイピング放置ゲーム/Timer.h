@@ -14,7 +14,8 @@ public:
 
 	void Update();
 	void Stop();	// タイマーを止める
+	void Clear() { m_time = 0.0f; }
 
 	bool GetIsEnable() { return m_isEnable; }
-	int GetTime() { return m_time; }
+	float GetTime() { return m_time; }
 };

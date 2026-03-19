@@ -1,5 +1,4 @@
 #pragma once
-
 #include <string>
 #include <map>
 #include <vector>
@@ -52,7 +51,7 @@ public:
 
 		// さ行・拗音
 		m_romajiMap["さ"] = { "sa" };        m_romajiMap["サ"] = { "sa" };
-		m_romajiMap["し"] = { "si" ,"shi" };       m_romajiMap["シ"] = { "si", "shi" };
+		m_romajiMap["し"] = {"shi", "si"};       m_romajiMap["シ"] = { "si", "shi" };
 		m_romajiMap["す"] = { "su" };        m_romajiMap["ス"] = { "su" };
 		m_romajiMap["せ"] = { "se" };        m_romajiMap["セ"] = { "se" };
 		m_romajiMap["そ"] = { "so" };        m_romajiMap["ソ"] = { "so" };
@@ -74,11 +73,13 @@ public:
 		m_romajiMap["た"] = { "ta" };
 		m_romajiMap["ち"] = {"ti", "chi" };
 		m_romajiMap["つ"] = {"tu", "tsu" };
-		m_romajiMap["っ"] = { "ltu" ,"xtu","xtsu" ,"ltsu" };
+		m_romajiMap["っ"] = { "xtsu" ,"ltsu" ,"ltu" ,"xtu"};
 		m_romajiMap["て"] = { "te" };
 		m_romajiMap["と"] = { "to" };
 		m_romajiMap["ちゃ"] = { "cha", "tya" };
+		m_romajiMap["ちぃ"] = { "cyi", "tyi" };
 		m_romajiMap["ちゅ"] = { "chu", "tyu" };
+		m_romajiMap["ちぇ"] = { "che", "tye" };
 		m_romajiMap["ちょ"] = { "cho", "tyo" };
 
 		m_romajiMap["つぁ"] = { "tsa" };
@@ -96,6 +97,7 @@ public:
 		m_romajiMap["ぢゅ"] = { "dyu" };
 		m_romajiMap["ぢょ"] = { "dyo" };
 
+		// 
 		m_romajiMap["てゃ"] = { "tha" };
 		m_romajiMap["てぃ"] = { "thi" };
 		m_romajiMap["てゅ"] = { "thu" };
@@ -121,7 +123,7 @@ public:
 		// は行・濁音・半濁音・拗音
 		m_romajiMap["は"] = { "ha" };
 		m_romajiMap["ひ"] = { "hi" };
-		m_romajiMap["ふ"] = { "fu" };
+		m_romajiMap["ふ"] = { "hu","fu"};
 		m_romajiMap["へ"] = { "he" };
 		m_romajiMap["ほ"] = { "ho" };
 		m_romajiMap["ば"] = { "ba" };
@@ -158,6 +160,7 @@ public:
 		m_romajiMap["む"] = { "mu" };
 		m_romajiMap["め"] = { "me" };
 		m_romajiMap["も"] = { "mo" };
+
 		// みゃ行
 		m_romajiMap["みゃ"] = { "mya" };
 		m_romajiMap["みゅ"] = { "myu" };

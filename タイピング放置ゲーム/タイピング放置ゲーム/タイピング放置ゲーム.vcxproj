@@ -143,7 +143,9 @@
   <ItemGroup>
     <ClCompile Include="Actor2D.cpp" />
     <ClCompile Include="AutoComputer.cpp" />
+    <ClCompile Include="Button.cpp" />
     <ClCompile Include="Computer.cpp" />
+    <ClCompile Include="EnhanceButton.cpp" />
     <ClCompile Include="GameMain.cpp" />
     <ClCompile Include="Keyboard.cpp" />
     <ClCompile Include="ManualComputer.cpp" />
@@ -159,7 +161,10 @@
   <ItemGroup>
     <ClInclude Include="Actor2D.h" />
     <ClInclude Include="AutoComputer.h" />
+    <ClInclude Include="Button.h" />
     <ClInclude Include="Computer.h" />
+    <ClInclude Include="EnhanceButton.h" />
+    <ClInclude Include="Status.h" />
     <ClInclude Include="GameMain.h" />
     <ClInclude Include="Keyboard.h" />
     <ClInclude Include="ManualComputer.h" />
@@ -173,6 +178,7 @@
     <ClInclude Include="Screen.h" />
     <ClInclude Include="SceneSetting.h" />
     <ClInclude Include="Task.h" />
+    <ClInclude Include="TaskTable.h" />
     <ClInclude Include="Time.hpp" />
     <ClInclude Include="Timer.h" />
     <ClInclude Include="Transform2D.h" />
